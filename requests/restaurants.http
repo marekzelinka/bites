@@ -1,0 +1,11 @@
+GET http://localhost:3000/api/restaurants
+
+###
+POST http://localhost:3000/api/restaurants
+Content-Type: application/json
+
+{
+  "name": "Very Good Cafe",
+  "location": "0,0",
+  "cuisines": ["French", "Italian"] 
+}

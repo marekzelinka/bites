@@ -8,8 +8,8 @@ import { errorHandler } from "./utils/middleware.js";
 
 express()
   .use(express.json())
-  .use("/restaurants", restaurantsRouter)
-  .use("/cuisines", cuisinesRouter)
+  .use("/api/restaurants", restaurantsRouter)
+  .use("/api/cuisines", cuisinesRouter)
   // errorHandler should be the last loaded middleware
   .use(errorHandler)
   .listen(process.env.PORT, () =>
