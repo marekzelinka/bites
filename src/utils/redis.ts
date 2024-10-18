@@ -3,7 +3,7 @@ import { logError, logInfo } from "./logger.js";
 
 let redis: RedisClientType | null = null;
 
-export async function initRedisClient() {
+export async function getCurrentRedisClient() {
   if (!redis) {
     redis = createClient();
 

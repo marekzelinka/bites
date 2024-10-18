@@ -9,7 +9,7 @@ export function successResponse({
   data: any;
   message?: string;
 }) {
-  return res.status(200).json({ success: true, message, data });
+  return res.status(200).send({ success: true, message, data });
 }
 
 export function errorResponse({
@@ -21,5 +21,5 @@ export function errorResponse({
   status: number;
   error: string;
 }) {
-  return res.status(status).json({ success: false, error });
+  return res.status(status).send({ success: false, error });
 }

@@ -1,6 +1,4 @@
-GET http://localhost:3000/api/restaurants
-
-###
+### Create restaurant
 POST http://localhost:3000/api/restaurants
 Content-Type: application/json
 
@@ -9,3 +7,9 @@ Content-Type: application/json
   "location": "0,0",
   "cuisines": ["French", "Italian"] 
 }
+
+### Get restaurant by id
+GET http://localhost:3000/api/restaurants/-Ce17-xkk3AH2DpohPdF3
+
+### Get restaurant with invalid id
+GET http://localhost:3000/api/restaurants/123456
