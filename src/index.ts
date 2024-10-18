@@ -1,5 +1,4 @@
 import express from "express";
-import "express-async-errors";
 import { cuisinesRouter } from "./routes/cuisines.js";
 import { restaurantsRouter } from "./routes/restaurants.js";
 import "./utils/env.js";
