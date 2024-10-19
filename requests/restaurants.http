@@ -13,7 +13,7 @@ POST http://localhost:3000/api/restaurants/-Ce17-xkk3AH2DpohPdF3/reviews
 Content-Type: application/json
 
 {
-  "review": "Amazing food",
+  "review": "Very good indeed",
   "rating": 4
 }
 
@@ -25,3 +25,9 @@ GET http://localhost:3000/api/restaurants/123456
 
 ### Get restaurant reviews
 GET http://localhost:3000/api/restaurants/-Ce17-xkk3AH2DpohPdF3/reviews
+
+### Get paginated restaurant reviews
+GET http://localhost:3000/api/restaurants/-Ce17-xkk3AH2DpohPdF3/reviews?page=1&limit=2
+
+### Delete restaurant review
+DELETE http://localhost:3000/api/restaurants/-Ce17-xkk3AH2DpohPdF3/reviews/EYhh6EdLBpHfN8KsqH-kg

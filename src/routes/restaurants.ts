@@ -8,9 +8,9 @@ import {
   reviewKeyById,
 } from "../utils/keys.js";
 import { logInfo } from "../utils/logger.js";
-import { checkRestaurantIdExists, validate } from "../utils/middleware.js";
+import { checkRestaurantExists, validate } from "../utils/middleware.js";
 import { getCurrentRedisClient } from "../utils/redis.js";
-import { successResponse } from "../utils/responses.js";
+import { errorResponse, successResponse } from "../utils/responses.js";
 
 export const restaurantsRouter = express
   .Router()
@@ -34,7 +34,7 @@ export const restaurantsRouter = express
   })
   .post(
     "/:restaurantId/reviews",
-    checkRestaurantIdExists,
+    checkRestaurantExists,
     validate(ReviewSchema),
     async (req, res) => {
       const redisClient = await getCurrentRedisClient();
@@ -59,7 +59,7 @@ export const restaurantsRouter = express
       successResponse({ res, data: hashData, message: "Review added" });
     },
   )
-  .get("/:restaurantId", checkRestaurantIdExists, async (req, res) => {
+  .get("/:restaurantId", checkRestaurantExists, async (req, res) => {
     const redisClient = await getCurrentRedisClient();
 
     const restaurantId = req.params.restaurantId as string;
@@ -72,7 +72,7 @@ export const restaurantsRouter = express
 
     successResponse({ res, data: restaurant });
   })
-  .get("/:restaurantId/reviews", checkRestaurantIdExists, async (req, res) => {
+  .get("/:restaurantId/reviews", checkRestaurantExists, async (req, res) => {
     const redisClient = await getCurrentRedisClient();
 
     const restaurantId = req.params.restaurantId as string;
@@ -94,4 +94,38 @@ export const restaurantsRouter = express
     );
 
     successResponse({ res, data: reviews });
-  });
+  })
+  .delete(
+    "/:restaurantId/reviews/:reviewId",
+    checkRestaurantExists,
+    async (req, res) => {
+      const redisClient = await getCurrentRedisClient();
+
+      const restaurantId = req.params.restaurantId as string;
+      const reviewKey = reviewKeyById(restaurantId);
+
+      const reviewId = req.params.reviewId;
+      if (!reviewId) {
+        errorResponse({
+          res,
+          status: 404,
+          error: "Review ID not found",
+        });
+        return;
+      }
+
+      const reviewDetailsKey = reviewDetailsKeyById(reviewId);
+
+      const [removeResult, deleteResult] = await Promise.all([
+        redisClient.lRem(reviewKey, 0, reviewId),
+        redisClient.del(reviewDetailsKey),
+      ]);
+      const isDeleted = removeResult !== 0 && deleteResult !== 0;
+      if (!isDeleted) {
+        errorResponse({ res, status: 404, error: "Review not found" });
+        return;
+      }
+
+      successResponse({ res, data: { reviewId }, message: "Review deleted" });
+    },
+  );

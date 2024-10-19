@@ -32,13 +32,12 @@ export function validate<SchemaOutput>(schema: ZodSchema<SchemaOutput>) {
   };
 }
 
-export async function checkRestaurantIdExists(
+export async function checkRestaurantExists(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   const restaurantId = req.params.restaurantId;
-
   if (!restaurantId) {
     errorResponse({
       res,
@@ -53,7 +52,6 @@ export async function checkRestaurantIdExists(
   const restaurantKey = restaurantKeyById(restaurantId);
   const keysCount = await redisClient.exists(restaurantKey);
   const isExistingKey = keysCount !== 0;
-
   if (!isExistingKey) {
     errorResponse({ res, status: 404, error: "Restaurant not found" });
     return;
