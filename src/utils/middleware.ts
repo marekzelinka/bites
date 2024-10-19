@@ -13,7 +13,7 @@ export function errorHandler(
 ) {
   logError(err);
 
-  errorResponse({ res, status: 500, error: err });
+  errorResponse({ res, status: 400, error: err });
 }
 
 export function validate<SchemaOutput>(schema: ZodSchema<SchemaOutput>) {
