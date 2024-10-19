@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "name": "Very Good Cafe",
   "location": "0,0",
-  "cuisines": ["French", "Italian"] 
+  "cuisines": ["Mexican", "Italian"] 
 }
 
 ### Create restaurant review
@@ -18,7 +18,7 @@ Content-Type: application/json
 }
 
 ### Get restaurant by id
-GET http://localhost:3000/api/restaurants/-Ce17-xkk3AH2DpohPdF3
+GET http://localhost:3000/api/restaurants/JdOTu2SjuqUlpCMotimV-
 
 ### Get restaurant with invalid id
 GET http://localhost:3000/api/restaurants/123456

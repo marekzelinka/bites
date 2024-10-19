@@ -3,11 +3,13 @@ import { nanoid } from "nanoid";
 import { RestaurantSchema, type Restaurant } from "../schemas/restaurant.js";
 import { ReviewSchema, type Review } from "../schemas/review.js";
 import {
+  getCuisineKeyByName,
+  getCuisinesKey,
+  getRestaurantCuisinesKeyById,
   getRestaurantKeyById,
   getReviewDetailsKeyById,
   getReviewKeyById,
 } from "../utils/keys.js";
-import { logInfo } from "../utils/logger.js";
 import { checkRestaurantExists, validate } from "../utils/middleware.js";
 import { getCurrentRedisClient } from "../utils/redis.js";
 import { errorResponse, successResponse } from "../utils/responses.js";
@@ -26,9 +28,20 @@ export const restaurantsRouter = express
       location: restaurant.location,
     };
 
-    const addResult = await redisClient.hSet(restaurantKey, hashData);
+    await Promise.all([
+      ...restaurant.cuisines.map((cuisine) => {
+        const cuisinesKey = getCuisinesKey();
+        const cuisineKey = getCuisineKeyByName(cuisine);
+        const restaurantCuisineKey = getRestaurantCuisinesKeyById(id);
 
-    logInfo(`Added ${addResult} fields`);
+        return Promise.all([
+          redisClient.sAdd(cuisinesKey, cuisine),
+          redisClient.sAdd(cuisineKey, id),
+          redisClient.sAdd(restaurantCuisineKey, cuisine),
+        ]);
+      }),
+      redisClient.hSet(restaurantKey, hashData),
+    ]);
 
     successResponse({ res, data: hashData, message: "Added new restaurant" });
   })
@@ -64,13 +77,15 @@ export const restaurantsRouter = express
 
     const restaurantId = req.params.restaurantId as string;
     const restaurantKey = getRestaurantKeyById(restaurantId);
+    const restaurantCuisineKey = getRestaurantCuisinesKeyById(restaurantId);
 
-    const [_viewCount, restaurant] = await Promise.all([
+    const [_viewCount, restaurant, cuisines] = await Promise.all([
       redisClient.hIncrBy(restaurantKey, "viewCount", 1),
       redisClient.hGetAll(restaurantKey),
+      redisClient.sMembers(restaurantCuisineKey),
     ]);
 
-    successResponse({ res, data: restaurant });
+    successResponse({ res, data: { ...restaurant, cuisines } });
   })
   .get("/:restaurantId/reviews", checkRestaurantExists, async (req, res) => {
     const redisClient = await getCurrentRedisClient();
