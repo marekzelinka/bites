@@ -71,4 +71,27 @@ export const restaurantsRouter = express
     ]);
 
     successResponse({ res, data: restaurant });
+  })
+  .get("/:restaurantId/reviews", checkRestaurantIdExists, async (req, res) => {
+    const redisClient = await getCurrentRedisClient();
+
+    const restaurantId = req.params.restaurantId as string;
+    const reviewKey = reviewKeyById(restaurantId);
+
+    const page =
+      typeof req.query.page === "string" ? Number(req.query.page) : 1;
+    const limit =
+      typeof req.query.limit === "string" ? Number(req.query.limit) : 10;
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
+
+    const reviewIds = await redisClient.lRange(reviewKey, start, end);
+    const reviews = await Promise.all(
+      reviewIds.map((id) => {
+        const reviewDetailsKey = reviewDetailsKeyById(id);
+        return redisClient.hGetAll(reviewDetailsKey);
+      }),
+    );
+
+    successResponse({ res, data: reviews });
   });
