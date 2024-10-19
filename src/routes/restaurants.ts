@@ -3,9 +3,9 @@ import { nanoid } from "nanoid";
 import { RestaurantSchema, type Restaurant } from "../schemas/restaurant.js";
 import { ReviewSchema, type Review } from "../schemas/review.js";
 import {
-  restaurantKeyById,
-  reviewDetailsKeyById,
-  reviewKeyById,
+  getRestaurantKeyById,
+  getReviewDetailsKeyById,
+  getReviewKeyById,
 } from "../utils/keys.js";
 import { logInfo } from "../utils/logger.js";
 import { checkRestaurantExists, validate } from "../utils/middleware.js";
@@ -18,7 +18,7 @@ export const restaurantsRouter = express
     const redisClient = await getCurrentRedisClient();
 
     const id = nanoid();
-    const restaurantKey = restaurantKeyById(id);
+    const restaurantKey = getRestaurantKeyById(id);
     const restaurant = req.body as Restaurant;
     const hashData = {
       id,
@@ -40,9 +40,9 @@ export const restaurantsRouter = express
       const redisClient = await getCurrentRedisClient();
 
       const restaurantId = req.params.restaurantId as string;
-      const reviewKey = reviewKeyById(restaurantId);
+      const reviewKey = getReviewKeyById(restaurantId);
       const reviewId = nanoid();
-      const reviewDetailsKey = reviewDetailsKeyById(reviewId);
+      const reviewDetailsKey = getReviewDetailsKeyById(reviewId);
       const reviewData = req.body as Review;
       const hashData = {
         id: reviewId,
@@ -63,7 +63,7 @@ export const restaurantsRouter = express
     const redisClient = await getCurrentRedisClient();
 
     const restaurantId = req.params.restaurantId as string;
-    const restaurantKey = restaurantKeyById(restaurantId);
+    const restaurantKey = getRestaurantKeyById(restaurantId);
 
     const [_viewCount, restaurant] = await Promise.all([
       redisClient.hIncrBy(restaurantKey, "viewCount", 1),
@@ -76,7 +76,7 @@ export const restaurantsRouter = express
     const redisClient = await getCurrentRedisClient();
 
     const restaurantId = req.params.restaurantId as string;
-    const reviewKey = reviewKeyById(restaurantId);
+    const reviewKey = getReviewKeyById(restaurantId);
 
     const page =
       typeof req.query.page === "string" ? Number(req.query.page) : 1;
@@ -88,7 +88,7 @@ export const restaurantsRouter = express
     const reviewIds = await redisClient.lRange(reviewKey, start, end);
     const reviews = await Promise.all(
       reviewIds.map((id) => {
-        const reviewDetailsKey = reviewDetailsKeyById(id);
+        const reviewDetailsKey = getReviewDetailsKeyById(id);
         return redisClient.hGetAll(reviewDetailsKey);
       }),
     );
@@ -102,7 +102,7 @@ export const restaurantsRouter = express
       const redisClient = await getCurrentRedisClient();
 
       const restaurantId = req.params.restaurantId as string;
-      const reviewKey = reviewKeyById(restaurantId);
+      const reviewKey = getReviewKeyById(restaurantId);
 
       const reviewId = req.params.reviewId;
       if (!reviewId) {
@@ -114,7 +114,7 @@ export const restaurantsRouter = express
         return;
       }
 
-      const reviewDetailsKey = reviewDetailsKeyById(reviewId);
+      const reviewDetailsKey = getReviewDetailsKeyById(reviewId);
 
       const [removeResult, deleteResult] = await Promise.all([
         redisClient.lRem(reviewKey, 0, reviewId),

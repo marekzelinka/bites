@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { ZodError, type ZodSchema } from "zod";
-import { restaurantKeyById } from "./keys.js";
+import { getRestaurantKeyById } from "./keys.js";
 import { logError } from "./logger.js";
 import { getCurrentRedisClient } from "./redis.js";
 import { errorResponse } from "./responses.js";
@@ -49,7 +49,7 @@ export async function checkRestaurantExists(
 
   const redisClient = await getCurrentRedisClient();
 
-  const restaurantKey = restaurantKeyById(restaurantId);
+  const restaurantKey = getRestaurantKeyById(restaurantId);
   const keysCount = await redisClient.exists(restaurantKey);
   const isExistingKey = keysCount !== 0;
   if (!isExistingKey) {

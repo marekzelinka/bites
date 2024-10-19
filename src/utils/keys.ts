@@ -1,8 +1,15 @@
-export function getKeyName(...args: string[]) {
+function getKeyName(...args: string[]) {
   return `bites:${args.join(":")}`;
 }
 
-export const restaurantKeyById = (id: string) => getKeyName("restaurants", id);
-export const reviewKeyById = (id: string) => getKeyName("reviews", id);
-export const reviewDetailsKeyById = (id: string) =>
-  getKeyName("review_details", id);
+export function getRestaurantKeyById(id: string) {
+  return getKeyName("restaurants", id);
+}
+
+export function getReviewKeyById(id: string) {
+  return getKeyName("reviews", id);
+}
+
+export function getReviewDetailsKeyById(id: string) {
+  return getKeyName("review_details", id);
+}
