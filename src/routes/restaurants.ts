@@ -104,6 +104,7 @@ export const restaurantsRouter = express
     const reviews = await Promise.all(
       reviewIds.map((id) => {
         const reviewDetailsKey = getReviewDetailsKeyById(id);
+
         return redisClient.hGetAll(reviewDetailsKey);
       }),
     );
